@@ -16,13 +16,18 @@ import java.util.Optional;
 @RequestMapping("/api/v1/students")
 public class StudentController {
 
-    private StudentService studentService;
+    private final StudentService studentService;
 
-    @GetMapping(path = "/{id}")
-    public Student getStudent(@PathVariable(value = "id") Integer studentId){
+    @GetMapping
+    public List<Student> getAllStudent(){
+        return studentService.getAllStudents();
+    }
 
-        return studentService.getStudent(studentId);
+    @GetMapping("{studentId}")
+    public Student getStudentById(@PathVariable("studentId") Integer studentId){
 
+        Optional<Student> studentById = studentService.getStudentById(studentId);
+        return studentById.orElseThrow();
     }
 
 }
