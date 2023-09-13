@@ -26,8 +26,8 @@ public class StudentController {
         return studentService.getAllStudents();
     }
 
-    @GetMapping("{studentId}")
-    public ResponseEntity<Student> getStudentById(@PathVariable("studentId") Integer studentId){
+    @GetMapping("{id}")
+    public ResponseEntity<Student> getStudentById(@PathVariable("id") Integer studentId){
 
 
         Optional<Student> studentById = studentService.getStudentById(studentId);
