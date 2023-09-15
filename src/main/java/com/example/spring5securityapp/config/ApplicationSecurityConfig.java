@@ -1,12 +1,15 @@
 package com.example.spring5securityapp.config;
 
+import com.example.spring5securityapp.auth.ApplicationUserService;
 import com.example.spring5securityapp.security.ApplicationUserPermission;
 import com.example.spring5securityapp.security.ApplicationUserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.SecurityBuilder;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -27,6 +30,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter{
 
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationUserService applicationUserService;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -53,31 +57,18 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter{
     }
 
     @Override
-    @Bean
-    protected UserDetailsService userDetailsService() {
-
-        UserDetails annasmithUser = User.builder()
-                .passwordEncoder(passwordEncoder :: encode)
-                .username("annasmith")
-                .password("password")
-//                .roles(ApplicationUserRole.STUDENT.name()) //ROLE_STUDENT
-                .authorities(ApplicationUserRole.STUDENT.getAuthorities())
-                .build();
-
-        UserDetails lindaUser = User.builder()
-                .username("linda")
-                .password(passwordEncoder.encode("password"))
-//                .roles(ApplicationUserRole.ADMIN.name()) //ROLE_ADMIN
-                .authorities(ApplicationUserRole.ADMIN.getAuthorities())
-                .build();
-
-        UserDetails tomUser = User.builder()
-                .username("tom")
-                .password(passwordEncoder.encode("password"))
-//                .roles(ApplicationUserRole.ADMINTRAINEE.name()) //ROLE_ADMINTRAINEE
-                .authorities(ApplicationUserRole.ADMINTRAINEE.getAuthorities())
-                .build();
-
-        return new InMemoryUserDetailsManager(annasmithUser, lindaUser, tomUser);
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.authenticationProvider(daoAuthenticationProvider());
     }
+
+//    @Bean
+    public DaoAuthenticationProvider daoAuthenticationProvider(){
+
+        DaoAuthenticationProvider daoAuthenticationProvider
+                = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
+        daoAuthenticationProvider.setUserDetailsService(applicationUserService);
+        return daoAuthenticationProvider;
+    }
+
 }
